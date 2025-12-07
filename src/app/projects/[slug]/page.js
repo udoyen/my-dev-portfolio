@@ -1,34 +1,11 @@
 import Link from "next/link";
+import { projects } from '@/data'; // <--- The new import!
 
 export default async function ProjectDetail({ params }) {
   // 1. Get the slug (the 'variable' part of the URL)
   // In Next.js 15, params is a Promise, so we await it.
   const { slug } = await params; 
 
-  // 2. THE DATA (In a real app, this comes from a database. For now, we copy it here.)
-  const projects = [
-    {
-      id: 1,
-      title: "DevFolio",
-      role: "Frontend Developer",
-      description: "My personal portfolio built with Next.js and Tailwind.",
-      link: "/projects/devfolio"
-    },
-    {
-      id: 2,
-      title: "Task Master",
-      role: "Backend Engineer",
-      description: "A productivity app using Node.js and MongoDB.",
-      link: "/projects/task-master"
-    },
-    {
-      id: 3,
-      title: "DevOps Pipeline",
-      role: "Cloud Architect",
-      description: "Automated CI/CD workflow using GitHub Actions.",
-      link: "/projects/devops-pipeline"
-    }
-  ];
 
   // 3. FIND THE MATCH
   // We look for the project whose 'link' ends with our slug
