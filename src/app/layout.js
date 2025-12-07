@@ -26,25 +26,41 @@ export default function RootLayout({ children }) {
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         suppressHydrationWarning={true}
       >
-        {/* START NAVIGATION */}
-        <nav className="p-6 bg-slate-900 text-white flex gap-10 justify-center items-center">
-          <Link href="/" className="hover:text-blue-400 font-bold">
-            HOME
-          </Link>
-          <Link href="/projects" className="hover:text-blue-400 font-bold">
-            PROJECTS
-          </Link>
-        </nav>
-        {/* END NAVIGATION */}
-        {/* Optional: Add a simple Nav to test login */}
-          <header className="flex justify-end p-4 bg-gray-900 text-white">
-            <SignedOut>
-              <SignInButton className="bg-blue-600 px-4 py-2 rounded hover:bg-blue-700"/>
-            </SignedOut>
-            <SignedIn>
-              <UserButton />
-            </SignedIn>
-          </header>
+        {/* UNIFIED NAVIGATION BAR */}
+        <nav className="p-6 bg-slate-900 text-white flex justify-between items-center">
+  
+            {/* Left Side: Navigation Links */}
+            <div className="flex gap-10 font-bold">
+              <Link href="/" className="hover:text-blue-400">
+                HOME
+              </Link>
+              <Link href="/projects" className="hover:text-blue-400">
+                PROJECTS
+              </Link>
+              {/* Optional: Add Admin Link if logged in */}
+              <SignedIn>
+                <Link href="/admin" className="hover:text-blue-400 text-yellow-400">
+                  ADMIN
+                </Link>
+              </SignedIn>
+            </div>
+
+            {/* Right Side: Auth Buttons */}
+            <div>
+              <SignedOut>
+                {/* mode="modal" opens a pop-up instead of redirecting */}
+                <SignInButton mode="modal">
+                  <button className="bg-blue-600 px-4 py-2 rounded hover:bg-blue-700 transition">
+                    Sign In
+                  </button>
+                </SignInButton>
+              </SignedOut>
+              <SignedIn>
+                <UserButton afterSignOutUrl="/" />
+              </SignedIn>
+            </div>
+
+          </nav>
         {children}
       </body>
     </html>
