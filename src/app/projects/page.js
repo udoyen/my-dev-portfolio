@@ -7,19 +7,22 @@ export default function Projects() {
       id: 1,
       title: "DevFolio",
       role: "Frontend Developer",
-      description: "My personal portfolio built with Next.js and Tailwind."
+      description: "My personal portfolio built with Next.js and Tailwind.",
+      link: "/projects/devfolio"
     },
     {
       id: 2,
       title: "Task Master",
       role: "Backend Engineer",
-      description: "A productivity app using Node.js and MongoDB."
+      description: "A productivity app using Node.js and MongoDB.",
+      link: "/projects/task-master"
     },
     {
       id: 3,
       title: "DevOps Pipeline",
       role: "Cloud Architect",
-      description: "Automated CI/CD workflow using GitHub Actions."
+      description: "Automated CI/CD workflow using GitHub Actions.",
+      link: "/projects/devops-pipeline"
     }
   ];
   return (
@@ -36,6 +39,7 @@ export default function Projects() {
             title={project.title}       // Pass title from data
             role={project.role}         // Pass role from data
             description={project.description} // Pass description
+            link={project.link}         // Pass link from data
           />
         ))}
       </div>
