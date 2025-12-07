@@ -5,7 +5,7 @@ export default function Projects() {
     <div className="p-24">
       <h1 className="text-3xl font-bold mb-8 text-center">My Work</h1>
 
-      <div className="grid md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {/* Instance 1 */}
         <ProjectCard 
           title="DevFolio" 
