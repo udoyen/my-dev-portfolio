@@ -17,10 +17,26 @@ export default function ContactForm() {
   };
 
   // Function to handle the submit button
-  const handleSubmit = (e) => {
-    e.preventDefault(); // Stop page from reloading
-    console.log("Form Submitted:", formData); // Logs to browser console
-    alert("Message sent! (Check console for data)");
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    // 1. Send data to our new API
+    const response = await fetch('/api/contact', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formData),
+    });
+
+    // 2. Wait for the server's answer
+    const result = await response.json();
+
+    // 3. React to the answer
+    if (result.success) {
+      alert("Success! " + result.message);
+      setFormData({ name: '', email: '', message: '' }); // Clear form
+    } else {
+      alert("Something went wrong.");
+    }
   };
 
   return (
