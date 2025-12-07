@@ -1,3 +1,4 @@
+import { ClerkProvider, SignInButton, SignedIn, SignedOut, UserButton } from '@clerk/nextjs'
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Link from "next/link";
@@ -19,6 +20,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
+    <ClerkProvider>
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
@@ -34,8 +36,18 @@ export default function RootLayout({ children }) {
           </Link>
         </nav>
         {/* END NAVIGATION */}
+        {/* Optional: Add a simple Nav to test login */}
+          <header className="flex justify-end p-4 bg-gray-900 text-white">
+            <SignedOut>
+              <SignInButton className="bg-blue-600 px-4 py-2 rounded hover:bg-blue-700"/>
+            </SignedOut>
+            <SignedIn>
+              <UserButton />
+            </SignedIn>
+          </header>
         {children}
       </body>
     </html>
+    </ClerkProvider>
   );
 }
