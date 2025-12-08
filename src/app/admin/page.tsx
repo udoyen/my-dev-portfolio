@@ -1,37 +1,54 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useUser } from "@clerk/nextjs";
-import { useRouter } from "next/navigation"; // <--- 1. Import Router
+import { useRouter } from "next/navigation";
+
+// --- TYPES DEFINITION ---
+interface Project {
+  _id: string;
+  title: string;
+  role: string;
+  description: string;
+}
+
+interface FormData {
+  title: string;
+  role: string;
+  description: string;
+}
 
 export default function AdminPage() {
-  const { user, isLoaded } = useUser(); // <--- 2. Get isLoaded to know when Clerk is ready
+  const { user, isLoaded } = useUser();
   const router = useRouter();
   
-  // DATA STATE
-  const [projects, setProjects] = useState([]);
-  const [formData, setFormData] = useState({ title: "", role: "", description: "" });
-  const [loading, setLoading] = useState(false);
+  // --- STATE WITH TYPES ---
+  // 1. Tell useState this is an array of 'Project' objects
+  const [projects, setProjects] = useState<Project[]>([]);
   
-  // UI STATE
-  const [editingId, setEditingId] = useState(null);
-  const [authorized, setAuthorized] = useState(false); // <--- 3. Security State
+  // 2. Tell useState this matches our FormData interface
+  const [formData, setFormData] = useState<FormData>({ title: "", role: "", description: "" });
+  
+  const [loading, setLoading] = useState<boolean>(false);
+  
+  // 3. editingId can be a string OR null (if not editing)
+  const [editingId, setEditingId] = useState<string | null>(null);
+  
+  const [authorized, setAuthorized] = useState<boolean>(false);
 
-  // 4. SECURITY CHECK (THE BOUNCER)
+  // --- SECURITY CHECK ---
   useEffect(() => {
     if (isLoaded) {
-      // REPLACE THIS WITH YOUR ACTUAL EMAIL ADDRESS
-      const MY_EMAIL = "datameshprojects@gmail.com"; 
+      const MY_EMAIL = "datameshprojects@gmail.com"; // <--- CHECK THIS!
       
-      // Check if the current user is YOU
+      // We use optional chaining (?) because user might be null
       if (user?.primaryEmailAddress?.emailAddress !== MY_EMAIL) {
-        router.push("/"); // Kick them out to Home Page
+        router.push("/"); 
       } else {
-        setAuthorized(true); // Let them in
+        setAuthorized(true);
       }
     }
   }, [isLoaded, user, router]);
 
-  // 5. FETCH PROJECTS (Only runs if authorized)
   useEffect(() => {
     if (authorized) {
       fetchProjects();
@@ -40,15 +57,18 @@ export default function AdminPage() {
 
   const fetchProjects = async () => {
     const res = await fetch("/api/projects");
-    const data = await res.json();
+    const data: Project[] = await res.json(); // Explicitly say "This JSON is a list of Projects"
     setProjects(data);
   };
 
-  const handleChange = (e) => {
+  // --- EVENT HANDLERS ---
+  
+  // 'e' is a ChangeEvent on either an Input or Textarea
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleEditClick = (project) => {
+  const handleEditClick = (project: Project) => {
     setEditingId(project._id);
     setFormData({
       title: project.title,
@@ -63,7 +83,8 @@ export default function AdminPage() {
     setFormData({ title: "", role: "", description: "" });
   };
 
-  const handleSubmit = async (e) => {
+  // 'e' is a FormEvent (submission)
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
@@ -90,13 +111,12 @@ export default function AdminPage() {
     setLoading(false);
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (id: string) => {
     if (!confirm("Are you sure?")) return;
     await fetch(`/api/projects/${id}`, { method: "DELETE" });
     fetchProjects();
   };
 
-  // 6. LOADING SCREEN (Blocks content until check finishes)
   if (!isLoaded || !authorized) {
     return (
       <div className="flex h-screen items-center justify-center">

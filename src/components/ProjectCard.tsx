@@ -1,7 +1,15 @@
 import Link from 'next/link';
 
+// 1. Define the Blueprint
+interface ProjectCardProps {
+  title: string;       // Must be text
+  role: string;        // Must be text
+  description: string; // Must be text
+  link: string;        // Must be text
+}
+
 // This function takes 'props' (title, description) as input
-export default function ProjectCard({ title, role, description, link }) {
+export default function ProjectCard({ title, role, description, link }: ProjectCardProps) {
   return (
     <div className="group border border-gray-700 p-6 rounded-lg 
                     transition transform duration-300 ease-in-out 

@@ -1,23 +1,30 @@
 "use client"; // <--- This is CRITICAL. Without it, the code crashes.
 
 import { useState } from 'react';
+import toast from 'react-hot-toast';
+
+interface FormData {
+  name: string;
+  email: string;
+  message: string;
+}
 
 export default function ContactForm() {
   // State to store the input values
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     name: '',
     email: '',
     message: ''
   });
 
   // Function to handle typing
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   // Function to handle the submit button
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     // 1. Send data to our new API
@@ -32,10 +39,11 @@ export default function ContactForm() {
 
     // 3. React to the answer
     if (result.success) {
-      alert("Success! " + result.message);
+      toast.success("Message sent successfully! " + result.message);
+      // alert("Success! " + result.message);
       setFormData({ name: '', email: '', message: '' }); // Clear form
     } else {
-      alert("Something went wrong.");
+      toast.error("Something went wrong. Please try again.");
     }
   };
 

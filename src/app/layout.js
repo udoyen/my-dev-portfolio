@@ -2,6 +2,8 @@ import { ClerkProvider, SignInButton, SignedIn, SignedOut, UserButton } from '@c
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Link from "next/link";
+import { Toaster } from 'react-hot-toast';
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -21,49 +23,50 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <ClerkProvider>
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-        suppressHydrationWarning={true}
-      >
-        {/* UNIFIED NAVIGATION BAR */}
-        <nav className="p-6 bg-slate-900 text-white flex justify-between items-center">
-  
-            {/* Left Side: Navigation Links */}
-            <div className="flex gap-10 font-bold">
-              <Link href="/" className="hover:text-blue-400">
-                HOME
-              </Link>
-              <Link href="/projects" className="hover:text-blue-400">
-                PROJECTS
-              </Link>
-              {/* Optional: Add Admin Link if logged in */}
-              <SignedIn>
-                <Link href="/admin" className="hover:text-blue-400 text-yellow-400">
-                  ADMIN
+      <html lang="en">
+        <body
+          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+          suppressHydrationWarning={true}
+        >
+          <Toaster />
+          {/* UNIFIED NAVIGATION BAR */}
+          <nav className="p-6 bg-slate-900 text-white flex justify-between items-center">
+    
+              {/* Left Side: Navigation Links */}
+              <div className="flex gap-10 font-bold">
+                <Link href="/" className="hover:text-blue-400">
+                  HOME
                 </Link>
-              </SignedIn>
-            </div>
+                <Link href="/projects" className="hover:text-blue-400">
+                  PROJECTS
+                </Link>
+                {/* Optional: Add Admin Link if logged in */}
+                <SignedIn>
+                  <Link href="/admin" className="hover:text-blue-400 text-yellow-400">
+                    ADMIN
+                  </Link>
+                </SignedIn>
+              </div>
 
-            {/* Right Side: Auth Buttons */}
-            <div>
-              <SignedOut>
-                {/* mode="modal" opens a pop-up instead of redirecting */}
-                <SignInButton mode="modal">
-                  <button className="bg-blue-600 px-4 py-2 rounded hover:bg-blue-700 transition">
-                    Sign In
-                  </button>
-                </SignInButton>
-              </SignedOut>
-              <SignedIn>
-                <UserButton afterSignOutUrl="/" />
-              </SignedIn>
-            </div>
+              {/* Right Side: Auth Buttons */}
+              <div>
+                <SignedOut>
+                  {/* mode="modal" opens a pop-up instead of redirecting */}
+                  <SignInButton mode="modal">
+                    <button className="bg-blue-600 px-4 py-2 rounded hover:bg-blue-700 transition">
+                      Sign In
+                    </button>
+                  </SignInButton>
+                </SignedOut>
+                <SignedIn>
+                  <UserButton afterSignOutUrl="/" />
+                </SignedIn>
+              </div>
 
-          </nav>
-        {children}
-      </body>
-    </html>
+            </nav>
+          {children}
+        </body>
+      </html>
     </ClerkProvider>
   );
 }
