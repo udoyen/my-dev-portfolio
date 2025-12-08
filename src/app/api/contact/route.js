@@ -18,7 +18,9 @@ export async function POST(request) {
       from: process.env.GMAIL_USER, 
       
       // 2. RECEIVER: Must be YOU (so it arrives in your inbox)
-      to: process.env.GMAIL_USER,   
+      to: process.env.GMAIL_USER.replace('@', '+portfolio@'), // <--- The Trick 
+      // TODO: Change this later to another email
+      // e.g. john.doe@gmail.com becomes john.doe+portfolio@gmail.com 
       
       // 3. THE MAGIC: When you hit "Reply", it goes to the VISITOR
       replyTo: email,               
