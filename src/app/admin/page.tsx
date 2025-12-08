@@ -2,8 +2,9 @@
 import { useState, useEffect } from "react";
 import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
+import toast from 'react-hot-toast'; // <--- 1. Import Toast
 
-// --- TYPES DEFINITION ---
+// --- TYPES ---
 interface Project {
   _id: string;
   title: string;
@@ -21,26 +22,18 @@ export default function AdminPage() {
   const { user, isLoaded } = useUser();
   const router = useRouter();
   
-  // --- STATE WITH TYPES ---
-  // 1. Tell useState this is an array of 'Project' objects
   const [projects, setProjects] = useState<Project[]>([]);
-  
-  // 2. Tell useState this matches our FormData interface
   const [formData, setFormData] = useState<FormData>({ title: "", role: "", description: "" });
-  
   const [loading, setLoading] = useState<boolean>(false);
-  
-  // 3. editingId can be a string OR null (if not editing)
   const [editingId, setEditingId] = useState<string | null>(null);
-  
   const [authorized, setAuthorized] = useState<boolean>(false);
 
   // --- SECURITY CHECK ---
   useEffect(() => {
     if (isLoaded) {
-      const MY_EMAIL = "datameshprojects@gmail.com"; // <--- CHECK THIS!
+      // REPLACE WITH YOUR EMAIL
+      const MY_EMAIL = "datameshprojects@gmail.com"; 
       
-      // We use optional chaining (?) because user might be null
       if (user?.primaryEmailAddress?.emailAddress !== MY_EMAIL) {
         router.push("/"); 
       } else {
@@ -56,14 +49,15 @@ export default function AdminPage() {
   }, [authorized]);
 
   const fetchProjects = async () => {
-    const res = await fetch("/api/projects");
-    const data: Project[] = await res.json(); // Explicitly say "This JSON is a list of Projects"
-    setProjects(data);
+    try {
+      const res = await fetch("/api/projects");
+      const data: Project[] = await res.json();
+      setProjects(data);
+    } catch (error) {
+      toast.error("Failed to load projects");
+    }
   };
 
-  // --- EVENT HANDLERS ---
-  
-  // 'e' is a ChangeEvent on either an Input or Textarea
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -76,17 +70,21 @@ export default function AdminPage() {
       description: project.description
     });
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    toast("Editing mode activated", { icon: '✏️' }); // <--- Nice touch!
   };
 
   const handleCancel = () => {
     setEditingId(null);
     setFormData({ title: "", role: "", description: "" });
+    toast("Edit cancelled");
   };
 
-  // 'e' is a FormEvent (submission)
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    
+    // 2. Start Loading Toast
+    const toastId = toast.loading("Saving project...");
 
     try {
       if (editingId) {
@@ -94,27 +92,38 @@ export default function AdminPage() {
           method: "PUT",
           body: JSON.stringify(formData),
         });
-        alert("Project Updated!");
+        // 3. Success Toast
+        toast.success("Project Updated Successfully!", { id: toastId });
       } else {
         await fetch("/api/projects", {
           method: "POST",
           body: JSON.stringify(formData),
         });
-        alert("Project Added!");
+        // 3. Success Toast
+        toast.success("New Project Added!", { id: toastId });
       }
       
-      handleCancel();
+      setEditingId(null);
+      setFormData({ title: "", role: "", description: "" });
       fetchProjects();
     } catch (error) {
-      alert("Error saving project");
+      // 4. Error Toast
+      toast.error("Failed to save project", { id: toastId });
     }
     setLoading(false);
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure?")) return;
-    await fetch(`/api/projects/${id}`, { method: "DELETE" });
-    fetchProjects();
+    if (!confirm("Are you sure you want to delete this project?")) return;
+    
+    const toastId = toast.loading("Deleting...");
+    try {
+      await fetch(`/api/projects/${id}`, { method: "DELETE" });
+      toast.success("Project Deleted", { id: toastId });
+      fetchProjects();
+    } catch (error) {
+      toast.error("Failed to delete", { id: toastId });
+    }
   };
 
   if (!isLoaded || !authorized) {
@@ -128,7 +137,7 @@ export default function AdminPage() {
   return (
     <div className="p-12 max-w-4xl mx-auto">
       <h1 className="text-3xl font-bold mb-8">Admin Dashboard</h1>
-      <p className="mb-8">Welcome, {user?.firstName} (Admin)</p>
+      <p className="mb-8">Welcome, {user?.firstName}</p>
 
       {/* FORM */}
       <div className={`p-8 rounded-lg mb-12 border ${editingId ? 'bg-blue-900 border-blue-500' : 'bg-gray-800 border-gray-700'}`}>

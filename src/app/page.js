@@ -10,6 +10,7 @@ export default function Home() {
           width={200}        // Required: Helps browser reserve space
           height={200}       // Required
           className="rounded-full border-4 border-slate-500 shadow-lg"
+          loading="eager"
         />
       </div>
       <h1 className="text-4xl font-bold">Hello, I'm George Udosen - Full Stack Developer</h1>

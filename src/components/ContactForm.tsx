@@ -1,8 +1,8 @@
-"use client"; // <--- This is CRITICAL. Without it, the code crashes.
-
+"use client";
 import { useState } from 'react';
-import toast from 'react-hot-toast';
+import toast from 'react-hot-toast'; // <--- THIS IS THE KEY IMPORT
 
+// 1. Define the shape of the form data
 interface FormData {
   name: string;
   email: string;
@@ -10,82 +10,92 @@ interface FormData {
 }
 
 export default function ContactForm() {
-  // State to store the input values
+  // 2. State with strict typing
   const [formData, setFormData] = useState<FormData>({
     name: '',
     email: '',
     message: ''
   });
 
-  // Function to handle typing
+  // 3. Handle Input Changes
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Function to handle the submit button
+  // 4. Handle Submit with Toast Notifications
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // 1. Send data to our new API
-    const response = await fetch('/api/contact', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(formData),
-    });
+    // A. Start the "Loading" Toast
+    // This creates a loading spinner on the screen
+    const toastId = toast.loading("Sending your message...");
 
-    // 2. Wait for the server's answer
-    const result = await response.json();
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
 
-    // 3. React to the answer
-    if (result.success) {
-      toast.success("Message sent successfully! " + result.message);
-      // alert("Success! " + result.message);
-      setFormData({ name: '', email: '', message: '' }); // Clear form
-    } else {
-      toast.error("Something went wrong. Please try again.");
+      const result = await response.json();
+
+      if (result.success) {
+        // B. Success: Update the spinner to a Green Checkmark
+        toast.success("Message sent successfully!", { id: toastId });
+        setFormData({ name: '', email: '', message: '' }); // Clear form
+      } else {
+        // C. Error: Update the spinner to a Red X
+        toast.error("Failed to send message.", { id: toastId });
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Something went wrong.", { id: toastId });
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4 max-w-md mx-auto p-4 border rounded-lg">
-
+    <form onSubmit={handleSubmit} className="flex flex-col gap-4 max-w-md mx-auto p-6 bg-gray-800 rounded-lg shadow-lg border border-gray-700">
+      
       <label className="flex flex-col">
-        <span className="font-bold mb-1">Name</span>
+        <span className="font-bold mb-1 text-gray-300">Name</span>
         <input 
           type="text" 
           name="name" 
           value={formData.name}
           onChange={handleChange}
-          className="border p-2 rounded text-black" 
+          className="p-2 rounded bg-gray-700 border border-gray-600 text-white focus:border-blue-500 outline-none transition" 
           required 
         />
       </label>
 
       <label className="flex flex-col">
-        <span className="font-bold mb-1">Email</span>
+        <span className="font-bold mb-1 text-gray-300">Email</span>
         <input 
           type="email" 
           name="email" 
           value={formData.email}
           onChange={handleChange}
-          className="border p-2 rounded text-black" 
+          className="p-2 rounded bg-gray-700 border border-gray-600 text-white focus:border-blue-500 outline-none transition" 
           required 
         />
       </label>
 
       <label className="flex flex-col">
-        <span className="font-bold mb-1">Message</span>
+        <span className="font-bold mb-1 text-gray-300">Message</span>
         <textarea 
           name="message" 
           value={formData.message}
           onChange={handleChange}
-          className="border p-2 rounded text-black h-32" 
+          className="p-2 rounded bg-gray-700 border border-gray-600 text-white h-32 focus:border-blue-500 outline-none transition" 
           required 
         />
       </label>
 
-      <button type="submit" className="bg-blue-600 text-white p-2 rounded hover:bg-blue-700 transition">
+      <button 
+        type="submit" 
+        className="bg-blue-600 text-white font-bold p-2 rounded hover:bg-blue-700 transition"
+      >
         Send Message
       </button>
     </form>
