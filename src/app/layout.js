@@ -40,6 +40,7 @@ export default function RootLayout({ children }) {
                 <Link href="/projects" className="hover:text-blue-400">
                   PROJECTS
                 </Link>
+                <Link href="/contact" className="hover:text-blue-400">CONTACT</Link>
                 {/* Optional: Add Admin Link if logged in */}
                 <SignedIn>
                   <Link href="/admin" className="hover:text-blue-400 text-yellow-400">

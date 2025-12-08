@@ -1,8 +1,7 @@
 "use client";
 import { useState } from 'react';
-import toast from 'react-hot-toast'; // <--- THIS IS THE KEY IMPORT
+import toast from 'react-hot-toast';
 
-// 1. Define the shape of the form data
 interface FormData {
   name: string;
   email: string;
@@ -10,25 +9,49 @@ interface FormData {
 }
 
 export default function ContactForm() {
-  // 2. State with strict typing
   const [formData, setFormData] = useState<FormData>({
     name: '',
     email: '',
     message: ''
   });
 
-  // 3. Handle Input Changes
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // 4. Handle Submit with Toast Notifications
+  // Helper function to check email format
+  const isValidEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // A. Start the "Loading" Toast
-    // This creates a loading spinner on the screen
+    // --- LOGIC VALIDATION (Layer 2) ---
+    // Even though HTML checks this, we double-check here for security
+    if (!formData.name.trim()) {
+      toast.error("Please enter your name");
+      return;
+    }
+
+    if (!formData.email.trim()) {
+      toast.error("Please enter your email");
+      return; 
+    }
+
+    if (!isValidEmail(formData.email)) {
+      toast.error("Please enter a valid email address");
+      return;
+    }
+
+    if (!formData.message.trim()) {
+      toast.error("Please enter a message");
+      return;
+    }
+    
+    // --- SENDING ---
     const toastId = toast.loading("Sending your message...");
 
     try {
@@ -41,11 +64,9 @@ export default function ContactForm() {
       const result = await response.json();
 
       if (result.success) {
-        // B. Success: Update the spinner to a Green Checkmark
         toast.success("Message sent successfully!", { id: toastId });
-        setFormData({ name: '', email: '', message: '' }); // Clear form
+        setFormData({ name: '', email: '', message: '' });
       } else {
-        // C. Error: Update the spinner to a Red X
         toast.error("Failed to send message.", { id: toastId });
       }
     } catch (error) {
@@ -58,37 +79,46 @@ export default function ContactForm() {
     <form onSubmit={handleSubmit} className="flex flex-col gap-4 max-w-md mx-auto p-6 bg-gray-800 rounded-lg shadow-lg border border-gray-700">
       
       <label className="flex flex-col">
-        <span className="font-bold mb-1 text-gray-300">Name</span>
+        <span className="font-bold mb-1 text-gray-300">
+          Name <span className="text-red-500">*</span>
+        </span>
         <input 
           type="text" 
           name="name" 
           value={formData.name}
           onChange={handleChange}
-          className="p-2 rounded bg-gray-700 border border-gray-600 text-white focus:border-blue-500 outline-none transition" 
-          required 
+          className="p-2 rounded bg-gray-700 border border-gray-600 text-white focus:border-blue-500 outline-none transition"
+          placeholder="Your Name" 
+          required // <--- Layer 1 Security
         />
       </label>
 
       <label className="flex flex-col">
-        <span className="font-bold mb-1 text-gray-300">Email</span>
+        <span className="font-bold mb-1 text-gray-300">
+          Email <span className="text-red-500">*</span>
+        </span>
         <input 
-          type="email" 
+          type="text" 
           name="email" 
           value={formData.email}
           onChange={handleChange}
-          className="p-2 rounded bg-gray-700 border border-gray-600 text-white focus:border-blue-500 outline-none transition" 
-          required 
+          className="p-2 rounded bg-gray-700 border border-gray-600 text-white focus:border-blue-500 outline-none transition"
+          placeholder="you@example.com"
+          required // <--- Layer 1 Security
         />
       </label>
 
       <label className="flex flex-col">
-        <span className="font-bold mb-1 text-gray-300">Message</span>
+        <span className="font-bold mb-1 text-gray-300">
+          Message <span className="text-red-500">*</span>
+        </span>
         <textarea 
           name="message" 
           value={formData.message}
           onChange={handleChange}
-          className="p-2 rounded bg-gray-700 border border-gray-600 text-white h-32 focus:border-blue-500 outline-none transition" 
-          required 
+          className="p-2 rounded bg-gray-700 border border-gray-600 text-white h-32 focus:border-blue-500 outline-none transition"
+          placeholder="How can I help you?" 
+          required // <--- Layer 1 Security
         />
       </label>
 

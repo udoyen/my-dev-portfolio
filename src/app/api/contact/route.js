@@ -1,16 +1,57 @@
 import { NextResponse } from 'next/server';
+import nodemailer from 'nodemailer';
 
 export async function POST(request) {
-  // 1. Read the data sent from the frontend
-  const data = await request.json();
+  try {
+    const { name, email, message } = await request.json();
 
-  // 2. Log it to the SERVER console (your terminal, not the browser)
-  console.log("SERVER RECEIVED MESSAGE:", data);
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.GMAIL_USER,
+        pass: process.env.GMAIL_PASS,
+      },
+    });
 
-  // 3. Simulate a delay (like sending an email)
-  // This is a pretend database wait time
-  await new Promise(resolve => setTimeout(resolve, 1000));
+    const mailOptions = {
+      // 1. SENDER: Must be YOU (because you authenticated with your password)
+      from: process.env.GMAIL_USER, 
+      
+      // 2. RECEIVER: Must be YOU (so it arrives in your inbox)
+      to: process.env.GMAIL_USER,   
+      
+      // 3. THE MAGIC: When you hit "Reply", it goes to the VISITOR
+      replyTo: email,               
+      
+      // 4. SUBJECT: Identifies this as a site message
+      subject: `New Message from Portfolio: ${name}`,
+      
+      // 5. CONTENT: The visitor's actual message
+      text: `
+        You have a new form submission!
+        
+        From: ${name} (${email})
+        
+        Message:
+        ${message}
+      `,
+      html: `
+        <h3>New Contact Form Submission</h3>
+        <p><strong>Visitor Name:</strong> ${name}</p>
+        <p><strong>Visitor Email:</strong> ${email}</p>
+        <div style="background: #f0f0f0; padding: 20px; border-radius: 5px;">
+          <p><strong>Message:</strong></p>
+          <p>${message}</p>
+        </div>
+      `,
+    };
 
-  // 4. Return success
-  return NextResponse.json({ success: true, message: "Email sent!" });
+    await transporter.sendMail(mailOptions);
+
+    return NextResponse.json({ success: true, message: "Email sent successfully!" });
+
+  } catch (error) {
+    console.error("Email Error:", error);
+    return NextResponse.json({ success: false, message: "Failed to send email" }, { status: 500 });
+  }
 }
